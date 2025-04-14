@@ -6,30 +6,41 @@ let perspective = 50;
 let ground;
 let gwidth = 50000;
 let gheight = 50000;
-let eye2ground = 100;
+let eye2ground = 30;
 
 let road;
 let rwidth = 300;
-let rheight = 50000;
-let eye2road= eye2ground-1;
+let rheight = 3000;
+let eye2road = eye2ground - 1
+
+let car;
+let carsize = 100;
 
 const render = () => {
     ground.style.transform = `
-    translate3d(${cwidth/2-gwidth/2}px, ${cheight/2-gheight/2}px, 0)
-    translate3d(0, ${eye2ground}px, 0)
+    translate3d(${cwidth / 2 - gwidth / 2}px, ${cheight / 2 - gheight / 2}px, 0)
+    translate3d(${heroX}px, ${eye2ground}px, 0)
     rotate3d(1,0,0, 90deg)
     `;
 
     road.style.transform = `
-    translate3d(${cwidth/2-rwidth/2}px, ${cheight/2-rheight/2}px, 0)
-    translate3d(0, ${eye2road}px, 0)
+    translate3d(${cwidth / 2 - rwidth / 2}px, ${cheight / 2 - rheight / 2}px, 0)
+    translate3d(${heroX}px,${eye2road}px, 0)
     rotate3d(1,0,0, 90deg)
-    translate3d(0, ${heroY}px, 0)
+    translate3d(0, ${heroY % 100}px, 0)
     `;
 }
+
 const init = () => {
+    car = document.getElementsByTagName('svg')[0]
+    car.style.position = 'absolute'
+    car.style.width = `${carsize}px`
+    car.style.height = `${carsize}px`
+    car.style.left = `${cwidth / 2 - carsize / 2}`
+    car.style.top = `${cheight / 3 * 2 - carsize / 2}`
+
     container = document.createElement('div');
-    document.body.appendChild(container)
+    document.body.insertBefore(container, car)
     container.style.position = 'absolute'
     container.style.height = `${cheight}px`
     container.style.width = `${cwidth}px`
@@ -62,9 +73,17 @@ let heroY = 0;
 
 window.onload = async () => {
     init()
+    let dummy = 0;
 
+    let v = 0
+    let k = 0.001
     while (true) {
-        heroY++;
+        dummy++;
+        heroY += v;
+        v += 0.5;
+        v -= v ** 3 * k
+        heroX = Math.sin(dummy * 0.05) * rwidth / 2.2
+        console.log(heroX);
         render();
         await new Promise(r => setTimeout(r, 16))
     }
