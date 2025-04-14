@@ -16,6 +16,10 @@ let eye2road = eye2ground - 1
 let car;
 let carsize = 100;
 
+let wall;
+let wheight = 60;
+let wwidth = 60;
+
 const render = () => {
     ground.style.transform = `
     translate3d(${cwidth / 2 - gwidth / 2}px, ${cheight / 2 - gheight / 2}px, 0)
@@ -28,6 +32,20 @@ const render = () => {
     translate3d(${heroX}px,${eye2road}px, 0)
     rotate3d(1,0,0, 90deg)
     translate3d(0, ${heroY % 100}px, 0)
+    `;
+
+    road.style.transform = `
+    translate3d(${cwidth / 2 - rwidth / 2}px, ${cheight / 2 - rheight / 2}px, 0)
+    translate3d(${heroX}px,${eye2road}px, 0)
+    rotate3d(1,0,0, 90deg)
+    translate3d(0, ${heroY % 100}px, 0)
+    `;
+
+    wall.style.transform = `
+    translate3d(${cwidth / 2 - 100}px, 130px, -1000px)
+    translate3d(${heroX}px,${eye2road+60}px, 0)
+    rotate3d(1,0,0, 180deg)
+    translate3d(0, 0,${-heroY%1200}px)
     `;
 }
 
@@ -64,6 +82,16 @@ const init = () => {
     road.style.width = `${rwidth}px`
     road.style.background = 'linear-gradient(0, #00f 50%, #f00 50%)'
     road.style.backgroundSize = '100px 100px'
+
+    wall = document.createElement('div')
+    container.appendChild(wall)
+    wall.style.position = 'absolute'
+    wall.style.height = `${wheight}px`
+    wall.style.width = `${wwidth}px`
+    //wall.style.background = 'linear-gradient(#e66465, #9198e5);'
+    //wall.style.backgroundSize = '100px 100px'
+    //wall.style.backgroundColor = 'linear-gradient(#e66465, #9198e6)'
+    wall.style.backgroundColor = '#550'
 
     render()
 }
