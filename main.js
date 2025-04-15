@@ -33,7 +33,6 @@ const render = () => {
     translate3d(0, ${heroY % 100}px, 0)
     `;
 
-    console.log(walls);
     for (const object of walls) {
         const {x, y, div} = object
         // だから，heroX ってなんだっけ，おんなじこと考えるの効率悪いな
@@ -43,7 +42,7 @@ const render = () => {
         translate3d(${heroX}px, ${eye2road}px, 0)
         rotate3d(1,0,0, 90deg)
         translate3d(0, ${heroY}px, 90px)
-        translate3d(${x}px, ${y-1000}px, 0)
+        translate3d(${x}px, ${-y}px, 0)
         rotate3d(1,0,0, -90deg)
         `;
     }
@@ -101,8 +100,8 @@ const init = () => {
 const walls = []
 createWalls = () => {
     for(let i = 0; i < 10; i++){
-        x = Math.random()*100
-        y = Math.random()*100
+        const x = Math.random()*100
+        const y = Math.random()*100 + 500
         div = document.createElement('div')
         div.style.position = 'absolute'
         div.style.height = `${wheight}px`
@@ -115,7 +114,6 @@ createWalls = () => {
 }
 let heroX = 0;
 let heroY = 0;
-
 window.onload = async () => {
     init()
     let dummy = 0;
@@ -129,8 +127,9 @@ window.onload = async () => {
         v -= v ** 3 * k
         heroX = Math.sin(dummy * 0.05) * rwidth / 2.2
         //console.log(heroX);
-        if (dummy%100==10) {
+        if (dummy%100 === 10) {
             createWalls();
+            console.log('create');
         }
         render();
         await new Promise(r => setTimeout(r, 16))
