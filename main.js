@@ -2,11 +2,12 @@ let container;
 let cwidth = 300;
 let cheight = 500;
 let perspective = 50;
+let updateDistance = 0;
 
 let ground;
 let gwidth = 50000;
 let gheight = 50000;
-let eye2ground = 30;
+let eye2ground = 40;
 
 let road;
 let rwidth = 300;
@@ -38,13 +39,28 @@ const render = () => {
         // だから，heroX ってなんだっけ，おんなじこと考えるの効率悪いな
         
         div.style.transform = `
-        translate3d(${cwidth / 2 - wwidth}px, ${cheight/2-wheight/2}px, 0)
+        translate3d(${cwidth / 2 - wwidth}px, ${cheight/2+wheight}px, 0)
         translate3d(${heroX}px, ${eye2road}px, 0)
         rotate3d(1,0,0, 90deg)
         translate3d(0, ${heroY}px, 90px)
-        translate3d(${x}px, ${-y}px, 0)
+        translate3d(${x}px, ${-y}px, ${-wheight}px)
         rotate3d(1,0,0, -90deg)
         `;
+    }
+}
+
+const walls = []
+createWalls = (fromY) => {
+    for(let i = 0; i < 10; i++){
+        const x = (Math.random()-0.5)*rwidth+wwidth/2
+        const y = Math.random()*1000 + fromY
+        div = document.createElement('div')
+        div.style.position = 'absolute'
+        div.style.height = `${wheight}px`
+        div.style.width = `${wwidth}px`
+        div.style.backgroundColor = '#aa0'
+        walls.push({x, y, div })
+        container.appendChild(div)
     }
 }
 
@@ -82,36 +98,12 @@ const init = () => {
     road.style.background = 'linear-gradient(0, #00f 50%, #f00 50%)'
     road.style.backgroundSize = '100px 100px'
 
-/*
-    wall = document.createElement('div')
-    container.appendChild(wall)
-    wall.style.position = 'absolute'
-    wall.style.height = `${wheight}px`
-    wall.style.width = `${wwidth}px`
-    //wall.style.background = 'linear-gradient(#e66465, #9198e5);'
-    //wall.style.backgroundSize = '100px 100px'
-    //wall.style.backgroundColor = 'linear-gradient(#e66465, #9198e6)'
-    wall.style.backgroundColor = '#550'
-*/
 
+    createWalls(500)
+    updateDistance = 500
     render()
 }
 
-const walls = []
-createWalls = () => {
-    for(let i = 0; i < 10; i++){
-        const x = Math.random()*100
-        const y = Math.random()*100 + 500
-        div = document.createElement('div')
-        div.style.position = 'absolute'
-        div.style.height = `${wheight}px`
-        div.style.width = `${wwidth}px`
-        // console.log(Math.random()*100);
-        div.style.backgroundColor = '#550'
-        walls.push({x, y, div })
-        container.appendChild(div)
-    }
-}
 let heroX = 0;
 let heroY = 0;
 window.onload = async () => {
@@ -123,14 +115,13 @@ window.onload = async () => {
     while (true) {
         dummy++;
         heroY += v;
+        if (heroY > updateDistance) {
+            updateDistance += 1000
+            createWalls(updateDistance) 
+        }
         v += 0.5;
         v -= v ** 3 * k
         heroX = Math.sin(dummy * 0.05) * rwidth / 2.2
-        //console.log(heroX);
-        if (dummy%100 === 10) {
-            createWalls();
-            console.log('create');
-        }
         render();
         await new Promise(r => setTimeout(r, 16))
     }
