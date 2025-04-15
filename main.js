@@ -12,7 +12,7 @@ let eye2ground = 40;
 let road;
 let rwidth = 300;
 let rheight = 3000;
-let eye2road = eye2ground - 1 
+let eye2road = eye2ground - 1
 
 let car;
 let carsize = 100;
@@ -23,24 +23,24 @@ let wwidth = 30;
 const render = () => {
     ground.style.transform = `
     translate3d(${cwidth / 2 - gwidth / 2}px, ${cheight / 2 - gheight / 2}px, 0)
-    translate3d(${heroX}px, ${eye2ground}px, 0)
+    translate3d(${-heroX}px, ${eye2ground}px, 0)
     rotate3d(1,0,0, 90deg)
     `;
 
     road.style.transform = `
     translate3d(${cwidth / 2 - rwidth / 2}px, ${cheight / 2 - rheight / 2}px, 0)
-    translate3d(${heroX}px,${eye2road}px, 0)
+    translate3d(${-heroX}px,${eye2road}px, 0)
     rotate3d(1,0,0, 90deg)
     translate3d(0, ${heroY % 100}px, 0)
     `;
 
     for (const object of walls) {
-        const {x, y, div} = object
+        const { x, y, div } = object
         // だから，heroX ってなんだっけ，おんなじこと考えるの効率悪いな
-        
+        // Ans. heroX はどうやら，車の中心を指している模様
         div.style.transform = `
-        translate3d(${cwidth / 2 - wwidth}px, ${cheight/2+wheight}px, 0)
-        translate3d(${heroX}px, ${eye2road}px, 0)
+        translate3d(${cwidth / 2 - wwidth}px, ${cheight / 2 + wheight}px, 0)
+        translate3d(${-heroX}px, ${eye2road}px, 0)
         rotate3d(1,0,0, 90deg)
         translate3d(0, ${heroY}px, 90px)
         translate3d(${x}px, ${-y}px, ${-wheight}px)
@@ -49,17 +49,32 @@ const render = () => {
     }
 }
 
+const checkCollision = (from, to) => {
+    let isconflict = false
+    for (const object of walls) {
+        const { x, y, div } = object
+        if (from < y && y < to) {
+            if (Math.abs(heroX - x) < wwidth) {
+                console.log('conflict');
+                isconflict = true
+            }
+        }
+    }
+    return isconflict
+}
+
 const walls = []
 createWalls = (fromY) => {
-    for(let i = 0; i < 10; i++){
-        const x = (Math.random()-0.5)*rwidth+wwidth/2
-        const y = Math.random()*1000 + fromY
+    for (let i = 0; i < 10; i++) {
+        const x = (Math.random() - 0.5) * (rwidth - wwidth / 2) + wwidth / 2
+        const y = Math.random() * 1000 + fromY
         div = document.createElement('div')
         div.style.position = 'absolute'
         div.style.height = `${wheight}px`
         div.style.width = `${wwidth}px`
         div.style.backgroundColor = '#aa0'
-        walls.push({x, y, div })
+        // ここの div と呼び出し時の名称が一致してないの，罠すぎる
+        walls.push({ x, y, div })
         container.appendChild(div)
     }
 }
@@ -117,11 +132,15 @@ window.onload = async () => {
         heroY += v;
         if (heroY > updateDistance) {
             updateDistance += 1000
-            createWalls(updateDistance) 
+            createWalls(updateDistance)
         }
         v += 0.5;
         v -= v ** 3 * k
-        heroX = Math.sin(dummy * 0.05) * rwidth / 2.2
+        if (checkCollision(heroY - 35, heroY - 35 + v)) {
+            console.log('conflict!!!');
+            v = -v
+        }
+        heroX = Math.sin(dummy * 0.05) * rwidth / 2
         render();
         await new Promise(r => setTimeout(r, 16))
     }
